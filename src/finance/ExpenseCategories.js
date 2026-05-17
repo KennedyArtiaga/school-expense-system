@@ -13,11 +13,11 @@ function ExpenseCategories({ expenses, categoryOptions, onSelectCategory }) {
         }));
 
     return sourceCategories.map((category) => {
-      const recordCount = expenses.filter((expense) => expense.category === category.category).length;
+      const categoryExpenses = expenses.filter((expense) => expense.category === category.category);
 
       return {
         ...category,
-        recordCount,
+        recordCount: categoryExpenses.length,
       };
     });
   }, [categoryOptions, expenses]);

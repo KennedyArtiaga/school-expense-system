@@ -1,17 +1,23 @@
 import React, { useState } from "react";
-import { getExpenseCategoryMeta } from "./financeUtils";
+import {
+  calculatePriority,
+  formatDateForDisplay,
+  getExpenseCategoryMeta,
+  getTodayInputValue,
+  isPaidStatus,
+} from "./financeUtils";
 
-const initialForm = {
+const createInitialForm = () => ({
   category: "",
   amount: "",
   description: "",
   status: "",
   department: "",
   referenceNo: "",
-  priority: "",
   notes: "",
-  date: "",
-};
+  date: getTodayInputValue(),
+  dueDate: "",
+});
 
 const formatDate = (value) => {
   if (!value) {
@@ -22,14 +28,24 @@ const formatDate = (value) => {
   return `${month}/${day}/${year}`;
 };
 
-function AddExpense({ addExpense, categoryOptions, departmentOptions, priorityOptions, statusOptions }) {
-  const [form, setForm] = useState(initialForm);
+function AddExpense({ addExpense, categoryOptions, departmentOptions, statusOptions }) {
+  const [form, setForm] = useState(() => createInitialForm());
+  const isReferenceEnabled = isPaidStatus(form.status);
+  const automaticPriority = calculatePriority(formatDateForDisplay(form.dueDate), new Date(), form.status);
 
   const updateField = (field, value) => {
-    setForm((currentForm) => ({
-      ...currentForm,
-      [field]: value,
-    }));
+    setForm((currentForm) => {
+      const updatedForm = {
+        ...currentForm,
+        [field]: value,
+      };
+
+      if (field === "status" && !isPaidStatus(value)) {
+        updatedForm.referenceNo = "";
+      }
+
+      return updatedForm;
+    });
   };
 
   const handleSubmit = (event) => {
@@ -45,20 +61,21 @@ function AddExpense({ addExpense, categoryOptions, departmentOptions, priorityOp
     addExpense({
       id: Date.now(),
       date: formatDate(form.date),
+      dueDate: formatDate(form.dueDate),
       category: form.category,
       title: form.description,
       description: form.description,
       department: form.department,
-      priority: form.priority,
+      priority: automaticPriority,
       amount: Number(form.amount),
       status: form.status,
       icon: categoryMeta.icon,
       iconClass: categoryMeta.iconClass,
-      referenceNo: form.referenceNo,
+      referenceNo: isReferenceEnabled ? form.referenceNo.trim() : "",
       notes: form.notes,
     });
 
-    setForm(initialForm);
+    setForm(createInitialForm());
   };
 
   return (
@@ -124,21 +141,7 @@ function AddExpense({ addExpense, categoryOptions, departmentOptions, priorityOp
 
               <label className="form-field">
                 <span>Priority</span>
-                {priorityOptions.length ? (
-                  <select value={form.priority} onChange={(event) => updateField("priority", event.target.value)}>
-                    <option value="">Select Priority</option>
-                    {priorityOptions.map((priority) => (
-                      <option key={priority}>{priority}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    value={form.priority}
-                    placeholder="Enter priority"
-                    onChange={(event) => updateField("priority", event.target.value)}
-                  />
-                )}
+                <input type="text" value={automaticPriority} readOnly aria-readonly="true" />
               </label>
 
               <label className="form-field">
@@ -147,6 +150,15 @@ function AddExpense({ addExpense, categoryOptions, departmentOptions, priorityOp
                   type="date"
                   value={form.date}
                   onChange={(event) => updateField("date", event.target.value)}
+                />
+              </label>
+
+              <label className="form-field">
+                <span>Due Date</span>
+                <input
+                  type="date"
+                  value={form.dueDate}
+                  onChange={(event) => updateField("dueDate", event.target.value)}
                 />
               </label>
             </div>
@@ -191,7 +203,8 @@ function AddExpense({ addExpense, categoryOptions, departmentOptions, priorityOp
                 <input
                   type="text"
                   value={form.referenceNo}
-                  placeholder="Enter reference number"
+                  disabled={!isReferenceEnabled}
+                  placeholder={isReferenceEnabled ? "Enter reference number" : "Available only when status is Paid"}
                   onChange={(event) => updateField("referenceNo", event.target.value)}
                 />
               </label>
@@ -207,7 +220,7 @@ function AddExpense({ addExpense, categoryOptions, departmentOptions, priorityOp
             </div>
 
             <div className="form-actions">
-              <button className="cancel-btn" type="button" onClick={() => setForm(initialForm)}>
+              <button className="cancel-btn" type="button" onClick={() => setForm(createInitialForm())}>
                 Cancel
               </button>
               <button className="save-btn" type="submit">

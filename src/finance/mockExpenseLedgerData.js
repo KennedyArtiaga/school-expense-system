@@ -15,9 +15,9 @@ export const expenseDepartmentOptions = [
   "Logistics",
 ];
 
-export const expensePriorityOptions = ["High", "Medium", "Low"];
+export const expensePriorityOptions = ["Overdue", "Due Today", "High", "Medium", "Low", "Normal/Upcoming", "Paid"];
 
-export const expenseStatusOptions = ["Paid", "Pending", "Unpaid"];
+export const expenseStatusOptions = ["Paid", "Pending", "Unpaid", "Not Paid"];
 
 const expenseCategoryDefinitions = [
   {
@@ -144,25 +144,186 @@ const expenseCategoryDefinitions = [
 
 export const expenseCategoryOptions = expenseCategoryDefinitions.map(({ baseAmount, ...category }) => category);
 
-const expenseYears = [2019, 2020, 2021, 2022, 2023, 2024];
+const expenseYears = [2022, 2023, 2024, 2025, 2026];
+const expenseMonths = Array.from({ length: 12 }, (_, index) => index + 1);
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
-const statusCycle = ["Paid", "Paid", "Pending", "Unpaid"];
+const padNumber = (value) => String(value).padStart(2, "0");
+
+const formatDate = (month, day, year) => `${padNumber(month)}/${padNumber(day)}/${year}`;
+
+const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const createDate = (month, day, year) => new Date(year, month - 1, day);
+
+const differenceInCalendarDays = (dateLeft, dateRight) => {
+  return Math.round((startOfDay(dateLeft) - startOfDay(dateRight)) / 86400000);
+};
+
+const isPaidStatus = (status) => String(status || "").trim().toLowerCase() === "paid";
+
+const calculatePriority = (dueDate, today, status) => {
+  if (isPaidStatus(status)) {
+    return "Paid";
+  }
+
+  const daysUntilDue = differenceInCalendarDays(dueDate, today);
+
+  if (daysUntilDue < 0) {
+    return "Overdue";
+  }
+
+  if (daysUntilDue === 0) {
+    return "Due Today";
+  }
+
+  if (daysUntilDue <= 7) {
+    return "High";
+  }
+
+  if (daysUntilDue <= 18) {
+    return "Medium";
+  }
+
+  if (daysUntilDue <= 30) {
+    return "Low";
+  }
+
+  return "Normal/Upcoming";
+};
+
+const getMonthDistance = (year, month, today) => {
+  return (year - today.getFullYear()) * 12 + (month - (today.getMonth() + 1));
+};
+
+const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
+
+const getExpenseDay = (categoryIndex) => 3 + (categoryIndex % 5);
+
+const getDueDay = ({ year, month, categoryIndex, expenseDay, today }) => {
+  const daysInMonth = getDaysInMonth(year, month);
+  const monthDistance = getMonthDistance(year, month, today);
+
+  if (monthDistance === 0) {
+    const currentMonthOffsets = [-8, 0, 3, 7, 10, 14, 18, 22, 26, 30, 9, 12];
+    return Math.min(daysInMonth, Math.max(expenseDay, today.getDate() + currentMonthOffsets[categoryIndex]));
+  }
+
+  if (monthDistance === 1) {
+    const nextMonthDueDays = [10, 12, 15, 18, 20, 22, 25, 26, 27, 28, 14, 16];
+    return Math.min(daysInMonth, Math.max(expenseDay, nextMonthDueDays[categoryIndex]));
+  }
+
+  return Math.min(daysInMonth, Math.max(expenseDay, 12 + (categoryIndex % 12)));
+};
+
+const getUnpaidStatus = (categoryIndex) => {
+  const statuses = ["Pending", "Unpaid", "Not Paid"];
+  return statuses[categoryIndex % statuses.length];
+};
+
+const generateStatus = ({ year, month, categoryIndex, today }) => {
+  const monthDistance = getMonthDistance(year, month, today);
+
+  if (monthDistance <= -5) {
+    return "Paid";
+  }
+
+  if (monthDistance < 0) {
+    return categoryIndex % 5 === 0 ? getUnpaidStatus(categoryIndex) : "Paid";
+  }
+
+  if (monthDistance === 0) {
+    return categoryIndex % 4 === 3 ? "Paid" : getUnpaidStatus(categoryIndex);
+  }
+
+  return categoryIndex % 4 === 0 ? "Paid" : getUnpaidStatus(categoryIndex);
+};
+
+const generateAmount = (baseAmount, yearIndex, monthIndex, categoryIndex) => {
+  const yearlyIncrease = 1 + yearIndex * 0.025;
+  const seasonalVariation = 1 + ((monthIndex % 4) - 1.5) * 0.012;
+  const categoryVariation = categoryIndex * 37;
+
+  return Math.round(baseAmount * yearlyIncrease * seasonalVariation + categoryVariation);
+};
+
+const generateReferenceNo = (year, month, categoryIndex, sequence, status) => {
+  if (!isPaidStatus(status)) {
+    return "";
+  }
+
+  return `EXP-${year}-${padNumber(month)}-${padNumber(categoryIndex + 1)}-${String(sequence).padStart(3, "0")}`;
+};
+
+const generateNotes = (expense, status, priority) => {
+  if (isPaidStatus(status)) {
+    return "Paid and posted to the monthly expense ledger.";
+  }
+
+  if (priority === "Overdue") {
+    return "Requires immediate payment follow-up.";
+  }
+
+  return `${expense.department} monthly billing record.`;
+};
+
+const mockToday = startOfDay(new Date());
 
 export const mockExpenseLedgerData = expenseYears.flatMap((year, yearIndex) =>
-  expenseCategoryDefinitions.map((expense, categoryIndex) => {
-    const month = String((categoryIndex % 12) + 1).padStart(2, "0");
-    const day = String(((categoryIndex * 2 + yearIndex) % 25) + 1).padStart(2, "0");
+  expenseMonths.flatMap((month, monthIndex) =>
+    expenseCategoryDefinitions.map((expense, categoryIndex) => {
+      const sequence = yearIndex * expenseMonths.length * expenseCategoryDefinitions.length
+        + monthIndex * expenseCategoryDefinitions.length
+        + categoryIndex
+        + 1;
+      const expenseDay = getExpenseDay(categoryIndex);
+      const dueDay = getDueDay({ year, month, categoryIndex, expenseDay, today: mockToday });
+      const dueDate = createDate(month, dueDay, year);
+      const status = generateStatus({ year, month, categoryIndex, today: mockToday });
+      const priority = calculatePriority(dueDate, mockToday, status);
+      const monthlyTitle = `${monthNames[monthIndex]} ${expense.title}`;
 
-    return {
-      id: yearIndex * expenseCategoryDefinitions.length + categoryIndex + 1,
-      category: expense.category,
-      title: expense.title,
-      description: expense.description,
-      amount: expense.baseAmount + yearIndex * 1100 + categoryIndex * 350,
-      date: `${month}/${day}/${year}`,
-      status: statusCycle[(yearIndex + categoryIndex) % statusCycle.length],
-      department: expense.department,
-      priority: expense.priority,
-    };
-  })
+      return {
+        id: sequence,
+        date: formatDate(month, expenseDay, year),
+        dueDate: formatDate(month, dueDay, year),
+        category: expense.category,
+        title: monthlyTitle,
+        description: expense.description,
+        department: expense.department,
+        priority,
+        amount: generateAmount(expense.baseAmount, yearIndex, monthIndex, categoryIndex),
+        status,
+        referenceNo: generateReferenceNo(year, month, categoryIndex, sequence, status),
+        notes: generateNotes(expense, status, priority),
+      };
+    })
+  )
 );
+
+export const financeDataSource = {
+  financeBudget,
+  dashboardRecentLimit,
+  viewTransitionDurationMs,
+  expenseDepartmentOptions,
+  expensePriorityOptions,
+  expenseStatusOptions,
+  expenseCategoryOptions,
+  mockExpenseLedgerData,
+};
+
+export default financeDataSource;
