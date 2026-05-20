@@ -1,0 +1,166 @@
+<mxfile host="app.diagrams.net" modified="2026-05-20T04:57:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="school-expense-system-flow" name="System Flowchart">
+    <mxGraphModel dx="1668" dy="1124" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="School Expense Management System Flowchart" style="text;html=1;strokeColor=none;fillColor=none;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="410" y="20" width="780" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="user" value="Admin / Finance User" style="shape=terminator;whiteSpace=wrap;html=1;rounded=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="110" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="app" value="React App Shell&lt;br&gt;src/App.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="105" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nav" value="Finance Management Navigation&lt;br&gt;Tabs: Analytics, Categories, Ledger, Add" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="610" y="105" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="datasource" value="Finance Data Source&lt;br&gt;mockExpenseLedgerData.js&lt;br&gt;Categories, departments, statuses, initial expenses" style="shape=cylinder3d;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="970" y="95" width="250" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="state" value="expenses State&lt;br&gt;useState([...mock records])&lt;br&gt;Source of truth for views" style="shape=cylinder3d;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#FFFDE7;strokeColor=#F9A825;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="970" y="250" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dashboard" value="Dashboard View&lt;br&gt;FinanceDashboard.js&lt;br&gt;Totals, pending amount, receipts, alerts, recent expenses" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="130" y="280" width="250" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="categories" value="Expense Categories View&lt;br&gt;ExpenseCategories.js&lt;br&gt;Category cards and record counts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="450" y="280" width="250" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ledger" value="Expense Ledger View&lt;br&gt;ExpenseLedger.js&lt;br&gt;Filter, search, totals, tooltip, export PDF/CSV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="770" y="430" width="250" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="addview" value="Add Expense View&lt;br&gt;AddExpense.js&lt;br&gt;Form input, validation, priority calculation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="130" y="530" width="250" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="utils" value="Finance Utilities&lt;br&gt;financeUtils.js&lt;br&gt;formatPeso, calculatePriority, summarizeExpenses, category metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="390" width="260" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="export" value="Browser Download&lt;br&gt;PDF or CSV report generated from filtered/all records" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#E0F7FA;strokeColor=#00838F;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="560" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="flowlabel" value="Add Expense Detailed Workflow" style="text;html=1;strokeColor=none;fillColor=none;fontSize=22;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="70" y="720" width="390" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="startadd" value="Open Add New Expenses tab" style="shape=terminator;whiteSpace=wrap;html=1;rounded=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="800" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fillform" value="Fill form fields&lt;br&gt;Category, description, date, amount, status&lt;br&gt;Optional: department, due date, notes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="350" y="780" width="260" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="paiddecision" value="Status is Paid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="775" width="160" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="refenabled" value="Enable Reference No.&lt;br&gt;Keep entered reference" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="930" y="745" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="refcleared" value="Disable Reference No.&lt;br&gt;Clear referenceNo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="930" y="855" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="submit" value="Click Save Expense" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="990" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="validdecision" value="Required fields complete?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="955" width="190" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="alert" value="Show alert&lt;br&gt;&quot;Please fill required fields&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="640" y="960" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="buildexpense" value="Build expense object&lt;br&gt;id=Date.now()&lt;br&gt;formatted dates, amount as Number&lt;br&gt;priority from due date/status&lt;br&gt;icon metadata from category" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1080" width="270" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="prepend" value="handleAddExpense()&lt;br&gt;Prepend new expense into expenses state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1095" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="routeledger" value="Switch to Ledger view&lt;br&gt;Dashboard, categories, and ledger now read updated state" style="shape=terminator;whiteSpace=wrap;html=1;rounded=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="1095" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="user" target="app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="app" target="nav" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="datasource" target="state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="nav" target="dashboard" value="home" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="nav" target="categories" value="categories" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="nav" target="ledger" value="ledger" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="nav" target="addview" value="add" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="state" target="dashboard" value="summaries" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="state" target="categories" value="counts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="state" target="ledger" value="records" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="categories" target="ledger" value="select category" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="dashboard" target="ledger" value="View All" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="ledger" target="export" value="export" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="utils" target="dashboard" value="summary / priority" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="utils" target="ledger" value="format / priority / metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="utils" target="addview" value="priority / metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="startadd" target="fillform" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="fillform" target="paiddecision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="paiddecision" target="refenabled" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="paiddecision" target="refcleared" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="refenabled" target="submit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="refcleared" target="submit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="submit" target="validdecision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="validdecision" target="alert" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="validdecision" target="buildexpense" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="buildexpense" target="prepend" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" edge="1" parent="1" source="prepend" target="routeledger" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" edge="1" parent="1" source="prepend" target="state" value="updates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;dashed=1;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

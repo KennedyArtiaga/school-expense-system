@@ -6,16 +6,6 @@ export const parseExpenseAmount = (amount) => {
   return Number(String(amount ?? "").replace(/[^0-9.-]+/g, "")) || 0;
 };
 
-const alertPriorityOrder = {
-  Overdue: 0,
-  "Due Today": 1,
-  High: 2,
-  Medium: 3,
-  Low: 4,
-  "Normal/Upcoming": 5,
-  Paid: 6,
-};
-
 const normalizeDateValue = (value) => {
   if (!value) {
     return null;
@@ -162,14 +152,6 @@ export const getDaysUntilDue = (expense, today = new Date()) => {
   return dueDate ? differenceInCalendarDays(dueDate, today) : null;
 };
 
-export const shouldShowAlert = (expense, today = new Date()) => {
-  if (isPaidStatus(expense?.status)) {
-    return false;
-  }
-
-  return ["Overdue", "Due Today", "High", "Medium", "Low"].includes(getExpensePriority(expense, today));
-};
-
 export const getAlertMessage = (expense, today = new Date()) => {
   const name = expense?.title || expense?.description || "Expense";
   const daysUntilDue = getDaysUntilDue(expense, today);
@@ -189,19 +171,59 @@ export const getAlertMessage = (expense, today = new Date()) => {
   return `${getExpensePriority(expense, today)} Priority: ${name} is due in ${daysUntilDue} day(s).`;
 };
 
-export const getActiveExpenseAlerts = (expenses, today = new Date()) => {
-  return expenses
+export const getOverdueExpenses = (expenses, today = new Date()) => {
+  return sanitizeExpenseRecords(expenses, today)
     .map((expense) => ({
       ...expense,
       priority: getExpensePriority(expense, today),
       daysUntilDue: getDaysUntilDue(expense, today),
       alertMessage: getAlertMessage(expense, today),
     }))
-    .filter((expense) => shouldShowAlert(expense, today))
+    .filter((expense) => {
+      return !isPaidStatus(expense.status) && getExpenseDueDate(expense) && getExpenseDueDate(expense) < startOfLocalDay(today);
+    })
+    .sort((first, second) => first.daysUntilDue - second.daysUntilDue);
+};
+
+const getPriorityExpenses = (expenses, priority, today = new Date()) => {
+  return sanitizeExpenseRecords(expenses, today)
+    .map((expense) => ({
+      ...expense,
+      priority: getExpensePriority(expense, today),
+      daysUntilDue: getDaysUntilDue(expense, today),
+      alertMessage: getAlertMessage(expense, today),
+    }))
+    .filter((expense) => !isPaidStatus(expense.status) && expense.priority === priority)
     .sort((first, second) => {
-      const priorityDifference = alertPriorityOrder[first.priority] - alertPriorityOrder[second.priority];
-      return priorityDifference || first.daysUntilDue - second.daysUntilDue;
+      const firstDays = first.daysUntilDue ?? Number.MAX_SAFE_INTEGER;
+      const secondDays = second.daysUntilDue ?? Number.MAX_SAFE_INTEGER;
+
+      return firstDays - secondDays;
     });
+};
+
+export const getHighPriorityExpenses = (expenses, today = new Date()) => getPriorityExpenses(expenses, "High", today);
+
+export const getMediumPriorityExpenses = (expenses, today = new Date()) => getPriorityExpenses(expenses, "Medium", today);
+
+export const getLowPriorityExpenses = (expenses, today = new Date()) => getPriorityExpenses(expenses, "Low", today);
+
+export const getExpenseAlertGroups = (expenses, today = new Date()) => {
+  const overdue = getOverdueExpenses(expenses, today);
+  const high = getHighPriorityExpenses(expenses, today).filter(
+    (expense) => !overdue.some((overdueExpense) => overdueExpense.id === expense.id)
+  );
+  const medium = getMediumPriorityExpenses(expenses, today);
+  const low = getLowPriorityExpenses(expenses, today);
+
+  return {
+    overdue,
+    high,
+    medium,
+    low,
+    critical: [...overdue, ...high],
+    other: [...medium, ...low],
+  };
 };
 
 export const sanitizeExpenseRecord = (expense, today = new Date()) => {

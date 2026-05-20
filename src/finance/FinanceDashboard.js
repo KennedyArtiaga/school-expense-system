@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import CategoryIcon from "./CategoryIcon";
 import {
   formatPeso,
-  getActiveExpenseAlerts,
   getExpenseCategoryMeta,
   getExpenseDate,
   getExpensePriority,
@@ -21,7 +20,6 @@ const metricIcons = [
 function FinanceDashboard({ expenses, categoryOptions, recentLimit, onOpenLedger }) {
   const expenseSummary = useMemo(() => summarizeExpenses(expenses), [expenses]);
   const totalReceipts = useMemo(() => expenses.filter((expense) => expense.status === "Paid").length, [expenses]);
-  const activeAlerts = useMemo(() => getActiveExpenseAlerts(expenses), [expenses]);
 
   const recentExpenses = useMemo(() => {
     const safeRecentLimit = recentLimit || expenses.length;
@@ -51,26 +49,6 @@ function FinanceDashboard({ expenses, categoryOptions, recentLimit, onOpenLedger
       .sort((a, b) => b.total - a.total)
       .slice(0, overviewLimit);
   }, [categoryOptions, expenseSummary.totalAmount, expenses, recentLimit]);
-
-  const alertGroups = useMemo(() => {
-    const groups = [
-      { label: "Overdue", records: [] },
-      { label: "Due Today", records: [] },
-      { label: "High", heading: "High Priority", records: [] },
-      { label: "Medium", heading: "Medium Priority", records: [] },
-      { label: "Low", heading: "Low Priority", records: [] },
-    ];
-
-    activeAlerts.forEach((alert) => {
-      const group = groups.find((item) => item.label === alert.priority);
-
-      if (group) {
-        group.records.push(alert);
-      }
-    });
-
-    return groups.filter((group) => group.records.length);
-  }, [activeAlerts]);
 
   const metrics = [
     {
@@ -115,54 +93,6 @@ function FinanceDashboard({ expenses, categoryOptions, recentLimit, onOpenLedger
               </span>
             </article>
           ))}
-        </section>
-
-        <section className="dashboard-alerts" aria-label="Active expense alerts">
-          <div className="dashboard-panel-title">
-            <h2>Active Expense Alerts</h2>
-            <span>{activeAlerts.length} unpaid alert{activeAlerts.length === 1 ? "" : "s"}</span>
-          </div>
-
-          {alertGroups.length ? (
-            <div className="alert-group-list">
-              {alertGroups.map((group) => (
-                <div className="alert-group" key={group.label}>
-                  <h3>{group.heading || group.label}</h3>
-                  <div className="alert-card-grid">
-                    {group.records.map((alert) => (
-                      <article className={`alert-card ${getPriorityClassName(alert.priority)}`} key={alert.id}>
-                        <div className="alert-card-head">
-                          <strong>{alert.title || alert.description}</strong>
-                          <span className={`badge priority ${getPriorityClassName(alert.priority)}`}>
-                            {alert.priority}
-                          </span>
-                        </div>
-                        <div className="alert-card-meta">
-                          <span>{alert.category}</span>
-                          <span>{formatPeso(alert.amount)}</span>
-                          <span>Due {alert.dueDate || "—"}</span>
-                        </div>
-                        <div className="alert-card-foot">
-                          <span>
-                            {alert.daysUntilDue < 0
-                              ? `${Math.abs(alert.daysUntilDue)} day(s) overdue`
-                              : alert.daysUntilDue === 0
-                                ? "Due today"
-                                : `${alert.daysUntilDue} day(s) remaining`}
-                          </span>
-                          <span className={`badge status ${getPriorityClassName(alert.status)}`}>
-                            {alert.status}
-                          </span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="empty-alerts">No active unpaid expenses within the alert window.</p>
-          )}
         </section>
 
         <section className="dashboard-grid">

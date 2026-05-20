@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { AddExpense, ExpenseCategories, ExpenseLedger, FinanceDashboard } from "./finance";
-import { financeDataSource } from "./finance/mockExpenseLedgerData";
+import { AddExpense, ExpenseAlerts, ExpenseCategories, ExpenseLedger, FinanceAlertToast, FinanceDashboard } from "./finance";
 import {
-  formatPeso,
-  getActiveExpenseAlerts,
-  getPriorityClassName,
+  getExpenseAlertGroups,
   isSameExpenseList,
   sanitizeExpenseRecord,
   updateOverdueExpenses,
 } from "./finance/financeUtils";
+import { financeDataSource } from "./finance/loadMockExpenseData";
 import "./App.css";
 
 function NavIcon({ type }) {
@@ -77,28 +75,6 @@ function NavIcon({ type }) {
   }
 }
 
-function NotificationIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M18 9.5a6 6 0 0 0-12 0c0 5-2 5.8-2 7h16c0-1.2-2-2-2-7Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9.7 19a2.4 2.4 0 0 0 4.6 0"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 const navigationItems = [
   { id: "finance", label: "Finance Management", icon: "finance" },
 ];
@@ -144,15 +120,19 @@ function App() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [headerDate, setHeaderDate] = useState(() => formatHeaderDate(new Date()));
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isFinanceAlertToastVisible, setIsFinanceAlertToastVisible] = useState(false);
   const accountMenuRef = useRef(null);
-  const notificationRef = useRef(null);
+  const alertsPanelRef = useRef(null);
+  const hasShownFinanceAlertToast = useRef(false);
   const transitionTimer = useRef(null);
 
   const activeLabel = useMemo(() => {
     return navigationItems.find((item) => item.id === activeSection)?.label || "Finance Management";
   }, [activeSection]);
-  const activeAlerts = useMemo(() => getActiveExpenseAlerts(expenses), [expenses]);
+
+  const expenseAlertGroups = useMemo(() => getExpenseAlertGroups(expenses), [expenses]);
+  const urgentAlertCount = expenseAlertGroups.overdue.length + expenseAlertGroups.high.length;
+  const isFinanceDashboardView = activeSection === "finance" && financeView === "home";
 
   useEffect(() => {
     const dateTimer = window.setInterval(() => {
@@ -166,7 +146,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!isAccountMenuOpen && !isNotificationOpen) {
+    if (!isAccountMenuOpen) {
       return undefined;
     }
 
@@ -174,16 +154,11 @@ function App() {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
         setIsAccountMenuOpen(false);
       }
-
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-        setIsNotificationOpen(false);
-      }
     };
 
     const handleDocumentKeyDown = (event) => {
       if (event.key === "Escape") {
         setIsAccountMenuOpen(false);
-        setIsNotificationOpen(false);
       }
     };
 
@@ -194,7 +169,16 @@ function App() {
       document.removeEventListener("mousedown", handleDocumentPointerDown);
       document.removeEventListener("keydown", handleDocumentKeyDown);
     };
-  }, [isAccountMenuOpen, isNotificationOpen]);
+  }, [isAccountMenuOpen]);
+
+  useEffect(() => {
+    if (activeSection !== "finance" || hasShownFinanceAlertToast.current || urgentAlertCount === 0) {
+      return;
+    }
+
+    hasShownFinanceAlertToast.current = true;
+    setIsFinanceAlertToastVisible(true);
+  }, [activeSection, urgentAlertCount]);
 
   useEffect(() => {
     setExpenses((currentExpenses) => {
@@ -255,8 +239,23 @@ function App() {
   };
 
   const handleAddExpense = (expense) => {
-    setExpenses((currentExpenses) => updateOverdueExpenses([sanitizeExpenseRecord(expense), ...currentExpenses]));
+    setExpenses((currentExpenses) => [sanitizeExpenseRecord(expense), ...currentExpenses]);
     showFinanceView("ledger");
+  };
+
+  const handleViewAlerts = () => {
+    setIsFinanceAlertToastVisible(false);
+
+    if (financeView !== "home") {
+      showFinanceView("home");
+    }
+
+    window.setTimeout(() => {
+      if (alertsPanelRef.current) {
+        alertsPanelRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        alertsPanelRef.current.focus({ preventScroll: true });
+      }
+    }, financeView === "home" ? 0 : financeDataSource.viewTransitionDurationMs + 40);
   };
 
   const renderFinanceContent = () => {
@@ -337,52 +336,6 @@ function App() {
 
           <div className="top-header-actions">
             <span className="header-date">{headerDate}</span>
-            <div className="notification-menu" ref={notificationRef}>
-              <button
-                className={`notification-button ${activeAlerts.length ? "has-alerts" : ""}`}
-                type="button"
-                aria-label={`${activeAlerts.length} active expense alerts`}
-                aria-haspopup="dialog"
-                aria-expanded={isNotificationOpen}
-                onClick={() => setIsNotificationOpen((isOpen) => !isOpen)}
-              >
-                <NotificationIcon />
-                {activeAlerts.length > 0 && <span className="notification-count">{activeAlerts.length}</span>}
-              </button>
-
-              {isNotificationOpen && (
-                <div className="notification-panel" role="dialog" aria-label="Expense notifications">
-                  <div className="notification-panel-title">
-                    <strong>Expense Alerts</strong>
-                    <span>{activeAlerts.length} active</span>
-                  </div>
-                  <div className="notification-list">
-                    {activeAlerts.length ? (
-                      activeAlerts.map((alert) => (
-                        <button
-                          key={alert.id}
-                          type="button"
-                          className="notification-item"
-                          onClick={() => {
-                            setIsNotificationOpen(false);
-                            showFinanceView("ledger", alert.category);
-                          }}
-                        >
-                          <span className={`notification-priority ${getPriorityClassName(alert.priority)}`}>
-                            {alert.priority}
-                          </span>
-                          <strong>{alert.title || alert.description}</strong>
-                          <span>{alert.alertMessage}</span>
-                          <small>{formatPeso(alert.amount)}</small>
-                        </button>
-                      ))
-                    ) : (
-                      <p>No active unpaid expense alerts.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
             <div className="account-menu" ref={accountMenuRef}>
               <button
                 className="header-user"
@@ -412,7 +365,6 @@ function App() {
         <main className="app-main content-scroll">
           <section className="content-header">
             <h1>{activeLabel}</h1>
-            <p>Overview of finance statistics for Pateros National High School</p>
 
             {activeSection === "finance" && (
               <div className="finance-tabs" aria-label="Finance Management navigation">
@@ -436,11 +388,27 @@ function App() {
               className={`finance-content ${isTransitioning ? "is-exiting" : "is-entering"}`}
             >
               {renderFinanceContent()}
+              {isFinanceDashboardView && (
+                <ExpenseAlerts
+                  alertGroups={expenseAlertGroups}
+                  categoryOptions={financeDataSource.expenseCategoryOptions}
+                  panelRef={alertsPanelRef}
+                />
+              )}
             </div>
           ) : (
             <section className="blank-panel" aria-label={`${activeLabel} placeholder`} />
           )}
         </main>
+
+        {isFinanceAlertToastVisible && (
+          <FinanceAlertToast
+            overdueCount={expenseAlertGroups.overdue.length}
+            highCount={expenseAlertGroups.high.length}
+            onViewAlerts={handleViewAlerts}
+            onDismiss={() => setIsFinanceAlertToastVisible(false)}
+          />
+        )}
       </section>
     </div>
   );
